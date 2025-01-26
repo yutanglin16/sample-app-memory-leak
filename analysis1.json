@@ -1,0 +1,50 @@
+[
+  {
+    "File": "D:\\Repos\\aca-agents\\src\\TestApps\\ProblematicApp\\Program.cs",
+    "Result": "[\n    {\n        \u0022line\u0022: 10,\n        \u0022explanation\u0022: \u0022The line \u0060builder.Services.AddSingleton\u003CILeakyCache, LeakyCache\u003E();\u0060 could be causing a memory leak. Singleton services have the same lifetime as the application, and if \u0060LeakyCache\u0060 is improperly managing its memory (e.g., retaining large byte arrays or objects in memory unnecessarily), it could lead to the observed increase in \u0060System.Byte[]\u0060 and \u0060System.String\u0060 objects.\u0022\n    },\n    {\n        \u0022line\u0022: 11,\n        \u0022explanation\u0022: \u0022The line \u0060builder.Services.AddSingleton\u003CIEventManager, EventManager\u003E();\u0060 could be contributing to a memory leak. If \u0060EventManager\u0060 is holding onto event subscriptions or other objects without properly cleaning them up, it could lead to the observed increase in \u0060System.Object\u0060 instances.\u0022\n    },\n    {\n        \u0022line\u0022: 12,\n        \u0022explanation\u0022: \u0022The line \u0060builder.Services.AddSingleton\u003CDataGenerator\u003E();\u0060 might be causing memory leaks if \u0060DataGenerator\u0060 is retaining large objects like byte arrays or strings, which could explain the increase in \u0060System.Byte[]\u0060 and \u0060System.String\u0060 instances.\u0022\n    },\n    {\n        \u0022line\u0022: 13,\n        \u0022explanation\u0022: \u0022The line \u0060builder.Services.AddSingleton\u003CCPUTaskManager\u003E();\u0060 could lead to a memory leak if \u0060CPUTaskManager\u0060 is creating and retaining resources such as \u0060CancellationTokenSource\u0060 objects or other unmanaged resources without proper cleanup, which might explain the increase in \u0060CancellationTokenSource\u0060 instances.\u0022\n    }\n]"
+  },
+  {
+    "File": "D:\\Repos\\aca-agents\\src\\TestApps\\ProblematicApp\\Controllers\\CPUController.cs",
+    "Result": "[\n    {\n        \u0022line\u0022: 19,\n        \u0022explanation\u0022: \u0022The method \u0060_cpuTaskManager.StartNewTask(request.Complexity)\u0060 is likely creating resources like \u0060System.Byte[]\u0060, \u0060System.String\u0060, or \u0060System.Object\u0060 that are not being properly cleaned up. This could lead to memory leaks if tasks are not disposed of or managed correctly after completion.\u0022\n    },\n    {\n        \u0022line\u0022: 33,\n        \u0022explanation\u0022: \u0022The method \u0060_cpuTaskManager.StopTask(taskId)\u0060 might not be ensuring proper cleanup of task-related resources. This could lead to retained objects like \u0060System.Byte[]\u0060, \u0060System.String\u0060, and \u0060System.Object\u0060 if disposal is incomplete.\u0022\n    },\n    {\n        \u0022line\u0022: 43,\n        \u0022explanation\u0022: \u0022The method \u0060_cpuTaskManager.GetActiveTasks()\u0060 could be returning references to existing task objects, potentially retaining memory unnecessarily if tasks are not disposed of or cleaned up properly.\u0022\n    },\n    {\n        \u0022line\u0022: 49,\n        \u0022explanation\u0022: \u0022The method \u0060_cpuTaskManager.StopAllTasks()\u0060 might not be effectively releasing resources associated with all tasks. This could result in retained objects like \u0060System.Byte[]\u0060, \u0060System.String\u0060, or \u0060System.Object\u0060, contributing to memory leaks.\u0022\n    }\n]"
+  },
+  {
+    "File": "D:\\Repos\\aca-agents\\src\\TestApps\\ProblematicApp\\Controllers\\MemoryController.cs",
+    "Result": "[\n    {\n        \u0022line\u0022: 13,\n        \u0022explanation\u0022: \u0022The line creates a large byte array (\u0060System.Byte[]\u0060) and does not provide any mechanism to remove or clean up the data from the cache. This could lead to memory growth as more data is added to \u0060_cache\u0060 without proper eviction or cleanup.\u0022\n    },\n    {\n        \u0022line\u0022: 19,\n        \u0022explanation\u0022: \u0022The line adds the large byte array to the \u0060_cache\u0060 dictionary, which is a static field, meaning the data will persist for the lifetime of the application unless explicitly removed. This can result in a memory leak as the cache grows indefinitely.\u0022\n    }\n]"
+  },
+  {
+    "File": "D:\\Repos\\aca-agents\\src\\TestApps\\ProblematicApp\\Models\\Requests.cs",
+    "Result": "[]"
+  },
+  {
+    "File": "D:\\Repos\\aca-agents\\src\\TestApps\\ProblematicApp\\Services\\CPUIntensiveTask.cs",
+    "Result": "[]"
+  },
+  {
+    "File": "D:\\Repos\\aca-agents\\src\\TestApps\\ProblematicApp\\Services\\CPUTaskManager.cs",
+    "Result": "[\n    {\n        \u0022line\u0022: 13,\n        \u0022explanation\u0022: \u0022The \u0060CPUIntensiveTask\u0060 objects are added to the \u0060_activeTasks\u0060 dictionary, but there is no guarantee they are disposed of properly when removed. If \u0060CPUIntensiveTask\u0060 allocates unmanaged resources or buffers (e.g., \u0060System.Byte[]\u0060), this could lead to a memory leak if \u0060Stop()\u0060 does not release these resources.\u0022\n    },\n    {\n        \u0022line\u0022: 29,\n        \u0022explanation\u0022: \u0022In the \u0060StopAllTasks\u0060 method, tasks are stopped but there is no explicit disposal of the \u0060CPUIntensiveTask\u0060 objects. If these objects hold onto unmanaged resources or references, such as \u0060System.Byte[]\u0060, they might not be cleaned up properly, even after the dictionary is cleared.\u0022\n    }\n]"
+  },
+  {
+    "File": "D:\\Repos\\aca-agents\\src\\TestApps\\ProblematicApp\\Services\\DataGenerator.cs",
+    "Result": "[\n  {\n    \u0022line\u0022: 30,\n    \u0022explanation\u0022: \u0022The \u0060AddToCache\u0060 method calls \u0060_leakyCache.AddToCache\u0060, which may retain large byte arrays (\u0060System.Byte[]\u0060) in memory without proper cleanup. This aligns with the report showing significant growth in \u0060System.Byte[]\u0060 objects.\u0022\n  },\n  {\n    \u0022line\u0022: 49,\n    \u0022explanation\u0022: \u0022The \u0060Subscribe\u0060 method uses \u0060_eventManager.Subscribe\u0060 with a lambda handler referencing the \u0060id\u0060. If \u0060_eventManager\u0060 retains the handler without proper unsubscription, it could lead to memory leaks. This might explain the growth in \u0060System.String\u0060 and \u0060System.Object\u0060 instances.\u0022\n  },\n  {\n    \u0022line\u0022: 58,\n    \u0022explanation\u0022: \u0022The \u0060GenerateData\u0060 method calls \u0060_dataGenerator.GenerateAndStoreData\u0060, which may allocate and retain large data structures in memory. This could contribute to the growth in \u0060System.Byte[]\u0060 and \u0060System.Object\u0060 instances.\u0022\n  },\n  {\n    \u0022line\u0022: 65,\n    \u0022explanation\u0022: \u0022The \u0060MemoryDump\u0060 method starts a process using \u0060Process.Start\u0060. If the process or its associated resources are not properly disposed of, it could lead to memory retention, possibly contributing to the growth in \u0060System.Object\u0060 instances.\u0022\n  }\n]"
+  },
+  {
+    "File": "D:\\Repos\\aca-agents\\src\\TestApps\\ProblematicApp\\Services\\EventManager.cs",
+    "Result": "[]"
+  },
+  {
+    "File": "D:\\Repos\\aca-agents\\src\\TestApps\\ProblematicApp\\Services\\ICPUIntensiveTask.cs",
+    "Result": "[]"
+  },
+  {
+    "File": "D:\\Repos\\aca-agents\\src\\TestApps\\ProblematicApp\\Services\\IEventManager.cs",
+    "Result": "[]"
+  },
+  {
+    "File": "D:\\Repos\\aca-agents\\src\\TestApps\\ProblematicApp\\Services\\ILeakyCache.cs",
+    "Result": "[]"
+  },
+  {
+    "File": "D:\\Repos\\aca-agents\\src\\TestApps\\ProblematicApp\\Services\\LeakyCache.cs",
+    "Result": "[\n    {\n        \u0022line\u0022: 13,\n        \u0022explanation\u0022: \u0022The line creates a large byte array (\u0060byte[] data\u0060) based on a given size in MB. If these arrays are stored indefinitely in the \u0060_cache\u0060 dictionary without being removed, it can lead to a memory leak, as indicated by the significant increase in \u0060System.Byte[]\u0060 objects.\u0022\n    },\n    {\n        \u0022line\u0022: 18,\n        \u0022explanation\u0022: \u0022This line adds the large byte array to the \u0060_cache\u0060 dictionary. Since the dictionary is static and does not have any mechanism for removing items, it retains all added data indefinitely, leading to memory growth.\u0022\n    }\n]"
+  }
+]
