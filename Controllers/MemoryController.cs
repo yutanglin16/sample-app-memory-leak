@@ -60,6 +60,19 @@ namespace PerformanceIssuesDemo.Controllers
             return Ok(new { recordsGenerated = request.RecordCount });
         }
 
+        [HttpPost("generate-data-background")]
+        public IActionResult GenerateDataBackground([FromBody] DataGenerationRequest request)
+        {
+            if (request.RecordCount <= 0 || request.RecordCount > 1000000)
+                return BadRequest("Record count must be between 1 and 1,000,000");
+
+            // Start generating data on a background thread (fire-and-forget).
+            _ = Task.Run(() => _dataGenerator.GenerateAndStoreData(request.RecordCount));
+
+            // Immediately return a response, so the caller isn't blocked.
+            return Ok(new { recordsRequested = request.RecordCount });
+        }
+
         [HttpGet("dump")]
         public IActionResult MemoryDump(int processId = 1)
         {
@@ -82,18 +95,13 @@ namespace PerformanceIssuesDemo.Controllers
             var error = process.StandardError.ReadToEnd();
             process.WaitForExit();
     
-            if (process.ExitCode != 0)
-            {
-                return BadRequest(new { error });
-            }
-    
             // Parse and limit to top 100 objects
             var lines = output.Split('\n')
                 .Where(l => !string.IsNullOrWhiteSpace(l))
                 .Where(l => l.Contains("   ")) // Filter memory dump lines
                 .Take(100);
     
-            return Ok(new { memoryDump = string.Join("\n", lines) });
+            return Ok(output);
         }
     }
 }
