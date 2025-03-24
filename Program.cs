@@ -11,6 +11,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ILeakyCache, LeakyCache>();
 builder.Services.AddSingleton<IEventManager, EventManager>();
 builder.Services.AddSingleton<DataGenerator>();
+builder.Services.AddSingleton<IAsyncDataGenerator, AsyncDataGenerator>();
 builder.Services.AddSingleton<CPUTaskManager>();
 
 var app = builder.Build();
